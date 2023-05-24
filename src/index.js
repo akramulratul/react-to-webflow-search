@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
 import { useState } from "react";
@@ -22,19 +22,21 @@ function App() {
       key: "selection",
     },
   ]);
-  const [checkInPlaceholder, setCheckInPlaceholder] = useState("Today");
-  const [checkOutPlaceholder, setCheckOutPlaceholder] = useState("Next week");
-  const [dateSelected, setDateSelected] = useState(false);
-  console.log(location);
-  const handleSelect = (ranges) => {
-    setDate(ranges.selection);
-  };
+  // const handleSelect = (ranges) => {
+  //   setDate(ranges.selection);
+  // };
   // const handleSelect = (ranges) => {
   //   setDate(ranges.selection);
   //   setDateSelected(true); // Set dateSelected to true when the date is selected
   // };
-  console.log(location);
-  console.log(date);
+
+  const [checkInSelected, setCheckInSelected] = useState(false);
+
+  const handleSelect = (ranges) => {
+    setDate([ranges.selection]);
+    setCheckInSelected(true); // Set checkInSelected to true when the check-in date is selected
+  };
+
   const handleSearch = () => {
     const checkInDate = format(date[0].startDate, "yyyy-MM-dd");
     const checkOutDate = format(date[0].endDate, "yyyy-MM-dd");
@@ -47,9 +49,28 @@ function App() {
     const url = `https://joingopher.com/destinations/guestbook?page=1&query%5Bproperty%5D%5Btext%5D=Las%20Vegas%2C%20Nevada%2C%20United%20States&query%5Bproperty%5D%5Bcity%5D=${encodedLocation}&query%5Bproperty%5D%5Bstate%5D=Nevada&query%5Bproperty%5D%5Bcountry%5D=United%20States&query%5Bproperty%5D%5Bid%5D=22416&query%5Bproperty%5D%5Btype%5D=City&query%5Bproperty%5D%5Bcenter%5D%5B0%5D=36.17497&query%5Bproperty%5D%5Bcenter%5D%5B1%5D=-115.13722&stayDates%5BcheckinDate%5D=${checkInDate}&stayDates%5BcheckoutDate%5D=${checkOutDate}`;
     window.open(url, "_blank");
   };
+  const handleCheckInClick = () => {
+    setCheckInSelected(true);
+    setOpenDate(!openDate);
+  };
+  const handleCheckOutClick = () => {
+    setCheckInSelected(true);
+    setOpenDate(!openDate);
+  };
 
   return (
     <div className="search-component">
+      {checkInSelected && openDate && (
+        <DateRange
+          editableDateInputs={true}
+          // onChange={(item) => setDate([item.selection])}
+          onChange={handleSelect}
+          moveRangeOnFirstSelection={false}
+          ranges={date}
+          className="date"
+        />
+      )}
+
       <div className="search-field">
         <div className="search-details">
           <div className="input-item first-input">
@@ -64,30 +85,28 @@ function App() {
             <label className="title-text">Check-in</label>
             {/* <input type="text" placeholder="Location" /> */}
             <input
-              onClick={() => setOpenDate(!openDate)}
-              // value={format(date[0].startDate, "yyyy-MM-dd")}
-              placeholder="Today"
+              onClick={handleCheckInClick}
+              value={
+                checkInSelected
+                  ? format(date[0].startDate, "yyyy-MM-dd")
+                  : "Today"
+              }
+              readOnly
             />
           </div>
           <div className="input-item last-input">
             <label className="title-text">Check-out</label>
             <input
-              onClick={() => setOpenDate(!openDate)}
-              // value={format(date[0].endDate, "yyyy-MM-dd")}
-              // placeholder={dateSelected ? "" : checkOutPlaceholder}
-              placeholder="Next Week"
+              onClick={handleCheckOutClick}
+              value={
+                checkInSelected
+                  ? format(date[0].endDate, "yyyy-MM-dd")
+                  : "Next Week"
+              }
+              readOnly
             />
           </div>
-          {openDate && (
-            <DateRange
-              editableDateInputs={true}
-              onChange={(item) => setDate([item.selection])}
-              // onChange={handleSelect}
-              moveRangeOnFirstSelection={false}
-              ranges={date}
-              className="date"
-            />
-          )}
+
           <button onClick={handleSearch} className="btn">
             <svg
               width="25"
