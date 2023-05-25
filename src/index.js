@@ -6,7 +6,6 @@ import "react-date-range/dist/styles.css"; // main css file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import { DateRange } from "react-date-range";
 import { format } from "date-fns";
-import { DateRangePicker } from "react-date-range";
 Modal.setAppElement(document.getElementById("react-target"));
 import "./assets/styles/search.css";
 import Modal from "react-modal";
@@ -22,13 +21,6 @@ function App() {
       key: "selection",
     },
   ]);
-  // const handleSelect = (ranges) => {
-  //   setDate(ranges.selection);
-  // };
-  // const handleSelect = (ranges) => {
-  //   setDate(ranges.selection);
-  //   setDateSelected(true); // Set dateSelected to true when the date is selected
-  // };
 
   const [checkInSelected, setCheckInSelected] = useState(false);
 
@@ -44,7 +36,6 @@ function App() {
     console.log(checkOutDate);
 
     const encodedLocation = encodeURIComponent(location);
-    // const [location, setLocation] = useState("");
     console.log(encodedLocation);
     const url = `https://joingopher.com/destinations/guestbook?page=1&query%5Bproperty%5D%5Btext%5D=Las%20Vegas%2C%20Nevada%2C%20United%20States&query%5Bproperty%5D%5Bcity%5D=${encodedLocation}&query%5Bproperty%5D%5Bstate%5D=Nevada&query%5Bproperty%5D%5Bcountry%5D=United%20States&query%5Bproperty%5D%5Bid%5D=22416&query%5Bproperty%5D%5Btype%5D=City&query%5Bproperty%5D%5Bcenter%5D%5B0%5D=36.17497&query%5Bproperty%5D%5Bcenter%5D%5B1%5D=-115.13722&stayDates%5BcheckinDate%5D=${checkInDate}&stayDates%5BcheckoutDate%5D=${checkOutDate}`;
     window.open(url, "_blank");
@@ -53,14 +44,17 @@ function App() {
     setCheckInSelected(true);
     setOpenDate(!openDate);
   };
-  const handleCheckOutClick = () => {
-    setCheckInSelected(true);
-    setOpenDate(!openDate);
+  const handleCheckOutClick = (e) => {
+    const newDate = [...date];
+    newDate[0].startDate = new Date(e.target.value);
+    setDate(newDate);
   };
 
   return (
     <div className="search-component">
-      {checkInSelected && openDate && (
+      {/* Date range picker for the date system */}
+
+      {/* {checkInSelected && openDate && (
         <DateRange
           editableDateInputs={true}
           // onChange={(item) => setDate([item.selection])}
@@ -69,22 +63,36 @@ function App() {
           ranges={date}
           className="date"
         />
-      )}
+      )} */}
 
       <div className="search-field">
         <div className="search-details">
           <div className="input-item first-input">
             <label className="title-text">Location</label>
-            <input
+
+            {/* Input Field for location */}
+
+            {/* <input
               type="text"
               placeholder="Location"
               onChange={(e) => setLocation(e.target.value)}
-            />
+            /> */}
+
+            <p className="title-text">Las Vegas</p>
           </div>
           <div className="input-item middle-input">
             <label className="title-text">Check-in</label>
             {/* <input type="text" placeholder="Location" /> */}
             <input
+              type="date"
+              value={date[0].startDate.toISOString().split("T")[0]} // Convert to string in the format "YYYY-MM-DD"
+              onChange={(e) => {
+                const newDate = [...date];
+                newDate[0].startDate = new Date(e.target.value);
+                setDate(newDate);
+              }}
+            />
+            {/* <input
               onClick={handleCheckInClick}
               value={
                 checkInSelected
@@ -92,11 +100,20 @@ function App() {
                   : "Today"
               }
               readOnly
-            />
+            /> */}
           </div>
           <div className="input-item last-input">
             <label className="title-text">Check-out</label>
             <input
+              type="date"
+              value={date[0].endDate.toISOString().split("T")[0]} // Convert to string in the format "YYYY-MM-DD"
+              onChange={(e) => {
+                const newDate = [...date];
+                newDate[0].endDate = new Date(e.target.value);
+                setDate(newDate);
+              }}
+            />
+            {/* <input
               onClick={handleCheckOutClick}
               value={
                 checkInSelected
@@ -104,7 +121,7 @@ function App() {
                   : "Next Week"
               }
               readOnly
-            />
+            /> */}
           </div>
 
           <button onClick={handleSearch} className="btn">
